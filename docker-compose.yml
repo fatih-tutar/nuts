@@ -1,0 +1,76 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: nuts-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    environment:
+      APP_ENV: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nuts
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: nuts-nginx
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8092}:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - nuts
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: nuts-postgres
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_DB_PORT:-5434}:5432"
+    environment:
+      POSTGRES_DB: "${DB_DATABASE:-nuts}"
+      POSTGRES_USER: "${DB_USERNAME:-nuts}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-secret}"
+    volumes:
+      - nuts-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-nuts} -d ${DB_DATABASE:-nuts}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - nuts
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: nuts-pgadmin
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_PGADMIN_PORT:-8093}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL:-admin@example.com}"
+      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD:-secret}"
+    volumes:
+      - nuts-pgadmin:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nuts
+
+networks:
+  nuts:
+    driver: bridge
+
+volumes:
+  nuts-postgres:
+  nuts-pgadmin:
