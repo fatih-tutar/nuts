@@ -49,7 +49,7 @@
 
 <div>
     <x-input-label for="{{ $idPrefix }}ordered_on" value="Sipariş tarihi" />
-    <x-text-input id="{{ $idPrefix }}ordered_on" name="ordered_on" type="date" class="mt-1 block w-full" :value="old('ordered_on', isset($order) && $order->ordered_on ? $order->ordered_on->format('Y-m-d') : '')" />
+    <x-text-input id="{{ $idPrefix }}ordered_on" name="ordered_on" type="date" class="mt-1 block w-full" :value="old('ordered_on', isset($order) && $order->ordered_on ? $order->ordered_on->format('Y-m-d') : now()->format('Y-m-d'))" />
     <x-input-error :messages="$errors->get('ordered_on')" class="mt-2" />
 </div>
 
