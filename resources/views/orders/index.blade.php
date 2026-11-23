@@ -77,6 +77,11 @@
                             <tr>
                                 <td class="px-1 sm:px-2 py-3">
                                     <x-row-menu>
+                                        @if ($order->customer?->phone)
+                                            <x-row-menu-link :href="'tel:'.preg_replace('/\s+/', '', $order->customer->phone)">
+                                                Ara
+                                            </x-row-menu-link>
+                                        @endif
                                         <x-row-menu-link :href="route('orders.index', array_filter(['edit' => $order->id, 'season_id' => $filters['season_id'] ?? $order->season_id, 'status' => $activeStatus !== '' ? $activeStatus : null]))">
                                             Düzenle
                                         </x-row-menu-link>
