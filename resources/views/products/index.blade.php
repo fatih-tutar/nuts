@@ -23,16 +23,26 @@
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="w-10 px-1 sm:px-2 py-3"></th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">Ad</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">Birim</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">Sıra</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">Durum</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-500"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse ($products as $product)
                             <tr>
+                                <td class="px-1 sm:px-2 py-3">
+                                    <x-row-menu>
+                                        <x-row-menu-link :href="route('products.index', ['edit' => $product->id])">Düzenle</x-row-menu-link>
+                                        <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-row-menu-button variant="danger">Sil</x-row-menu-button>
+                                        </form>
+                                    </x-row-menu>
+                                </td>
                                 <td class="px-4 py-3 text-gray-900">{{ $product->name }}</td>
                                 <td class="px-4 py-3 text-gray-600">{{ $product->unit }}</td>
                                 <td class="px-4 py-3 text-gray-600">{{ $product->sort_order }}</td>
@@ -40,14 +50,6 @@
                                     <span class="{{ $product->is_active ? 'text-green-700' : 'text-gray-400' }}">
                                         {{ $product->is_active ? 'Aktif' : 'Pasif' }}
                                     </span>
-                                </td>
-                                <td class="px-4 py-3 text-right space-x-3">
-                                    <a href="{{ route('products.index', ['edit' => $product->id]) }}" class="text-indigo-600 hover:underline">Düzenle</a>
-                                    <form action="{{ route('products.destroy', $product) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:underline">Sil</button>
-                                    </form>
                                 </td>
                             </tr>
                         @empty

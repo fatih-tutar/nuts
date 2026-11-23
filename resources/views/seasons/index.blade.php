@@ -23,6 +23,7 @@
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="w-10 px-1 sm:px-2 py-3"></th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">Sezon</th>
                             <th class="px-4 py-3 text-right font-medium text-gray-500">Birim fiyat</th>
                             <th class="px-4 py-3 text-right font-medium text-gray-500">Altın</th>
@@ -31,7 +32,6 @@
                             <th class="px-4 py-3 text-right font-medium text-gray-500">Ciro ₺</th>
                             <th class="px-4 py-3 text-right font-medium text-gray-500">Ciro $</th>
                             <th class="px-4 py-3 text-right font-medium text-gray-500">Ciro altın</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-500"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -43,6 +43,17 @@
                                 $gold = $season->gold_price > 0 ? round($revenue / (float) $season->gold_price, 2) : null;
                             @endphp
                             <tr>
+                                <td class="px-1 sm:px-2 py-3">
+                                    <x-row-menu>
+                                        <x-row-menu-link :href="route('orders.index', ['season_id' => $season->id])">Siparişler</x-row-menu-link>
+                                        <x-row-menu-link :href="route('seasons.index', ['edit' => $season->id])">Düzenle</x-row-menu-link>
+                                        <form action="{{ route('seasons.destroy', $season) }}" method="POST" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-row-menu-button variant="danger">Sil</x-row-menu-button>
+                                        </form>
+                                    </x-row-menu>
+                                </td>
                                 <td class="px-4 py-3 text-gray-900 font-medium">{{ $season->displayName() }}</td>
                                 <td class="px-4 py-3 text-right text-gray-700">{{ number_format((float) $season->unit_price, 2, ',', '.') }}</td>
                                 <td class="px-4 py-3 text-right text-gray-600">{{ $season->gold_price !== null ? number_format((float) $season->gold_price, 2, ',', '.') : '—' }}</td>
@@ -51,15 +62,6 @@
                                 <td class="px-4 py-3 text-right text-gray-700">{{ number_format($revenue, 2, ',', '.') }}</td>
                                 <td class="px-4 py-3 text-right text-gray-600">{{ $usd !== null ? number_format($usd, 2, ',', '.') : '—' }}</td>
                                 <td class="px-4 py-3 text-right text-gray-600">{{ $gold !== null ? number_format($gold, 2, ',', '.') : '—' }}</td>
-                                <td class="px-4 py-3 text-right space-x-3 whitespace-nowrap">
-                                    <a href="{{ route('orders.index', ['season_id' => $season->id]) }}" class="text-gray-700 hover:underline">Siparişler</a>
-                                    <a href="{{ route('seasons.index', ['edit' => $season->id]) }}" class="text-indigo-600 hover:underline">Düzenle</a>
-                                    <form action="{{ route('seasons.destroy', $season) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:underline">Sil</button>
-                                    </form>
-                                </td>
                             </tr>
                         @empty
                             <tr>

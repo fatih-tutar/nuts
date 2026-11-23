@@ -24,22 +24,12 @@ enum OrderStatus: string
         return match ($this) {
             self::Ordered => 'Sipariş verdi',
             self::Delivered => 'Teslim edildi',
-            self::PaymentPending => 'Ödeme bekliyor',
-            self::Paid => 'Ödendi',
+            self::PaymentPending => 'Ödeme bekleniyor',
+            self::Paid => 'Ödeme yapıldı',
         };
     }
 
-    public function tabLabel(): string
-    {
-        return match ($this) {
-            self::Ordered => 'Verdi',
-            self::Delivered => 'Teslim',
-            self::PaymentPending => 'Bekliyor',
-            self::Paid => 'Ödendi',
-        };
-    }
-
-    /** Idle / active Tailwind classes for underline status tabs. */
+    /** Idle / active Tailwind classes for status tabs. */
     public function tabClasses(bool $active): string
     {
         return $active ? $this->tabActiveClasses() : $this->tabIdleClasses();
@@ -48,20 +38,20 @@ enum OrderStatus: string
     public function tabIdleClasses(): string
     {
         return match ($this) {
-            self::Ordered => 'border-transparent text-sky-700/70 hover:text-sky-800 hover:border-sky-200',
-            self::Delivered => 'border-transparent text-violet-700/70 hover:text-violet-800 hover:border-violet-200',
-            self::PaymentPending => 'border-transparent text-amber-800/70 hover:text-amber-900 hover:border-amber-200',
-            self::Paid => 'border-transparent text-emerald-700/70 hover:text-emerald-800 hover:border-emerald-200',
+            self::Ordered => 'border-transparent text-sky-800/60 hover:bg-sky-50 hover:text-sky-900',
+            self::Delivered => 'border-transparent text-violet-800/60 hover:bg-violet-50 hover:text-violet-900',
+            self::PaymentPending => 'border-transparent text-amber-900/60 hover:bg-amber-50 hover:text-amber-950',
+            self::Paid => 'border-transparent text-emerald-800/60 hover:bg-emerald-50 hover:text-emerald-900',
         };
     }
 
     public function tabActiveClasses(): string
     {
         return match ($this) {
-            self::Ordered => 'border-sky-600 text-sky-800',
-            self::Delivered => 'border-violet-600 text-violet-800',
-            self::PaymentPending => 'border-amber-500 text-amber-900',
-            self::Paid => 'border-emerald-600 text-emerald-800',
+            self::Ordered => 'border-sky-600 bg-sky-600 text-white shadow-sm',
+            self::Delivered => 'border-violet-600 bg-violet-600 text-white shadow-sm',
+            self::PaymentPending => 'border-amber-500 bg-amber-500 text-white shadow-sm',
+            self::Paid => 'border-emerald-600 bg-emerald-600 text-white shadow-sm',
         };
     }
 

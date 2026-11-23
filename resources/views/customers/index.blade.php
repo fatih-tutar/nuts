@@ -28,16 +28,31 @@
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="w-10 px-1 sm:px-2 py-3"></th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">İsim</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">Telefon</th>
                             <th class="hidden md:table-cell px-4 py-3 text-left font-medium text-gray-500">Şehir</th>
                             <th class="hidden md:table-cell px-4 py-3 text-left font-medium text-gray-500">Adres</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-500"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse ($customers as $customer)
                             <tr>
+                                <td class="px-1 sm:px-2 py-3">
+                                    <x-row-menu>
+                                        <x-row-menu-link :href="route('orders.create', ['customer_id' => $customer->id])">
+                                            Sipariş
+                                        </x-row-menu-link>
+                                        <x-row-menu-link :href="route('customers.index', ['edit' => $customer->id, 'q' => $q])">
+                                            Düzenle
+                                        </x-row-menu-link>
+                                        <form action="{{ route('customers.destroy', $customer) }}" method="POST" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-row-menu-button variant="danger">Sil</x-row-menu-button>
+                                        </form>
+                                    </x-row-menu>
+                                </td>
                                 <td class="px-4 py-3 text-gray-900 font-medium">
                                     <a href="{{ route('customers.show', $customer) }}" class="hover:underline">{{ $customer->name }}</a>
                                 </td>
@@ -50,15 +65,6 @@
                                 </td>
                                 <td class="hidden md:table-cell px-4 py-3 text-gray-600">{{ $customer->city ?: '—' }}</td>
                                 <td class="hidden md:table-cell px-4 py-3 text-gray-600 max-w-xs truncate" title="{{ $customer->address }}">{{ $customer->address ?: '—' }}</td>
-                                <td class="px-4 py-3 text-right space-x-3 whitespace-nowrap">
-                                    <a href="{{ route('orders.create', ['customer_id' => $customer->id]) }}" class="text-gray-700 hover:underline">Sipariş</a>
-                                    <a href="{{ route('customers.index', ['edit' => $customer->id, 'q' => $q]) }}" class="text-indigo-600 hover:underline">Düzenle</a>
-                                    <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:underline">Sil</button>
-                                    </form>
-                                </td>
                             </tr>
                         @empty
                             <tr>

@@ -81,26 +81,37 @@
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="w-10 px-1 sm:px-2 py-3"></th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">Sezon</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">Ürün</th>
                             <th class="px-4 py-3 text-right font-medium text-gray-500">Kg</th>
                             <th class="px-4 py-3 text-right font-medium text-gray-500">Birim fiyat</th>
                             <th class="px-4 py-3 text-right font-medium text-gray-500">Tutar ₺</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">Durum</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-500"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse ($orders as $order)
                             <tr>
+                                <td class="px-1 sm:px-2 py-3">
+                                    <x-row-menu>
+                                        <x-row-menu-link :href="route('orders.edit', $order)">Düzenle</x-row-menu-link>
+                                        <form action="{{ route('orders.destroy', $order) }}" method="POST" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-row-menu-button variant="danger">Sil</x-row-menu-button>
+                                        </form>
+                                    </x-row-menu>
+                                </td>
                                 <td class="px-4 py-3 text-gray-900">{{ $order->season?->year }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ $order->season?->product?->name }}</td>
                                 <td class="px-4 py-3 text-right text-gray-700">{{ number_format((float) $order->quantity_kg, 2, ',', '.') }}</td>
                                 <td class="px-4 py-3 text-right text-gray-600">{{ number_format((float) ($order->season?->unit_price ?? 0), 2, ',', '.') }}</td>
                                 <td class="px-4 py-3 text-right text-gray-700">{{ number_format($order->revenueTry(), 2, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-gray-700">{{ $order->status->label() }}</td>
-                                <td class="px-4 py-3 text-right">
-                                    <a href="{{ route('orders.edit', $order) }}" class="text-indigo-600 hover:underline">Düzenle</a>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $order->status->badgeClasses() }}">
+                                        {{ $order->status->shortLabel() }}
+                                    </span>
                                 </td>
                             </tr>
                         @empty

@@ -38,12 +38,12 @@
                     </select>
                 </form>
 
-                <div class="grid grid-cols-5 border-b border-gray-200" role="tablist" aria-label="Sipariş durumu">
+                <div class="grid grid-cols-5 gap-0.5 rounded-lg bg-gray-100 p-0.5 sm:p-1" role="tablist" aria-label="Sipariş durumu">
                     <a
                         href="{{ route('orders.index', $seasonQuery) }}"
                         role="tab"
                         aria-selected="{{ $activeStatus === '' ? 'true' : 'false' }}"
-                        class="min-w-0 px-1 py-2.5 text-center text-[11px] sm:text-sm font-semibold border-b-2 -mb-px transition {{ $activeStatus === '' ? 'border-gray-800 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
+                        class="min-w-0 rounded-md px-1 py-2 text-center text-[10px] leading-tight sm:text-xs sm:leading-snug font-semibold border transition {{ $activeStatus === '' ? 'border-gray-800 bg-gray-800 text-white shadow-sm' : 'border-transparent text-gray-500 hover:bg-white hover:text-gray-800' }}"
                     >
                         Tümü
                     </a>
@@ -52,9 +52,9 @@
                             href="{{ route('orders.index', array_merge($seasonQuery, ['status' => $statusCase->value])) }}"
                             role="tab"
                             aria-selected="{{ $activeStatus === $statusCase->value ? 'true' : 'false' }}"
-                            class="min-w-0 px-1 py-2.5 text-center text-[11px] sm:text-sm font-semibold border-b-2 -mb-px transition {{ $statusCase->tabClasses($activeStatus === $statusCase->value) }}"
+                            class="min-w-0 rounded-md px-1 py-2 text-center text-[10px] leading-tight sm:text-xs sm:leading-snug font-semibold border transition {{ $statusCase->tabClasses($activeStatus === $statusCase->value) }}"
                         >
-                            {{ $statusCase->tabLabel() }}
+                            {{ $statusCase->shortLabel() }}
                         </a>
                     @endforeach
                 </div>
@@ -64,17 +64,31 @@
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="w-10 px-1 sm:px-2 py-3"></th>
+                            <th class="w-8 px-2 sm:px-3 py-3 text-right font-medium text-gray-400">#</th>
                             <th class="px-3 sm:px-4 py-3 text-left font-medium text-gray-500">Müşteri</th>
                             <th class="hidden md:table-cell px-4 py-3 text-left font-medium text-gray-500">Sezon</th>
                             <th class="px-2 sm:px-4 py-3 text-right font-medium text-gray-500">Kg</th>
                             <th class="px-2 sm:px-4 py-3 text-right font-medium text-gray-500">Tutar ₺</th>
                             <th class="hidden md:table-cell px-4 py-3 text-left font-medium text-gray-500">Durum</th>
-                            <th class="px-2 sm:px-4 py-3 text-right font-medium text-gray-500"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse ($orders as $order)
                             <tr>
+                                <td class="px-1 sm:px-2 py-3">
+                                    <x-row-menu>
+                                        <x-row-menu-link :href="route('orders.index', array_filter(['edit' => $order->id, 'season_id' => $filters['season_id'] ?? $order->season_id, 'status' => $activeStatus !== '' ? $activeStatus : null]))">
+                                            Düzenle
+                                        </x-row-menu-link>
+                                        <form action="{{ route('orders.destroy', $order) }}" method="POST" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-row-menu-button variant="danger">Sil</x-row-menu-button>
+                                        </form>
+                                    </x-row-menu>
+                                </td>
+                                <td class="px-2 sm:px-3 py-3 text-right text-xs text-gray-400 tabular-nums">{{ $orders->firstItem() + $loop->index }}</td>
                                 <td class="px-3 sm:px-4 py-3 text-gray-900 font-medium">
                                     @if ($order->customer)
                                         <a href="{{ route('customers.show', $order->customer) }}" class="hover:underline break-words">{{ $order->customer->name }}</a>
@@ -88,18 +102,10 @@
                                         {{ $order->status->shortLabel() }}
                                     </span>
                                 </td>
-                                <td class="px-2 sm:px-4 py-3 text-right space-x-2 sm:space-x-3 whitespace-nowrap">
-                                    <a href="{{ route('orders.index', array_filter(['edit' => $order->id, 'season_id' => $filters['season_id'] ?? $order->season_id, 'status' => $activeStatus !== '' ? $activeStatus : null])) }}" class="text-indigo-600 hover:underline">Düzenle</a>
-                                    <form action="{{ route('orders.destroy', $order) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:underline">Sil</button>
-                                    </form>
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">Sipariş bulunamadı.</td>
+                                <td colspan="7" class="px-4 py-8 text-center text-gray-500">Sipariş bulunamadı.</td>
                             </tr>
                         @endforelse
                     </tbody>
