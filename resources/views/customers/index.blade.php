@@ -19,9 +19,15 @@
                 <div class="bg-green-50 text-green-800 px-4 py-3 rounded-md text-sm">{{ session('status') }}</div>
             @endif
 
-            <form method="GET" class="flex gap-2">
-                <x-text-input name="q" class="w-full max-w-md" placeholder="İsim, telefon veya şehir ara..." :value="$q" />
-                <x-primary-button>Ara</x-primary-button>
+            <form method="GET" class="max-w-md" x-data>
+                <x-text-input
+                    name="q"
+                    class="w-full"
+                    placeholder="İsim, telefon veya şehir ara..."
+                    :value="$q"
+                    autofocus
+                    x-on:input.debounce.300ms="$el.form.requestSubmit()"
+                />
             </form>
 
             <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto">
