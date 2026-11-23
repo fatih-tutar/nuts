@@ -5,27 +5,24 @@ namespace App\Enums;
 enum OrderStatus: string
 {
     case Ordered = 'ordered';
-    case Delivered = 'delivered';
-    case PaymentPending = 'payment_pending';
+    case AwaitingPayment = 'awaiting_payment';
     case Paid = 'paid';
 
     public function label(): string
     {
         return match ($this) {
-            self::Ordered => 'Sipariş verdi',
-            self::Delivered => 'Sipariş teslim edildi',
-            self::PaymentPending => 'Ödemesi bekleniyor',
-            self::Paid => 'Ödeme yapıldı',
+            self::Ordered => 'Sipariş alındı',
+            self::AwaitingPayment => 'Teslim edildi, ödeme bekleniyor',
+            self::Paid => 'Tamamlandı',
         };
     }
 
     public function shortLabel(): string
     {
         return match ($this) {
-            self::Ordered => 'Sipariş verdi',
-            self::Delivered => 'Teslim edildi',
-            self::PaymentPending => 'Ödeme bekleniyor',
-            self::Paid => 'Ödeme yapıldı',
+            self::Ordered => 'Alındı',
+            self::AwaitingPayment => 'Ödeme bekleniyor',
+            self::Paid => 'Tamamlandı',
         };
     }
 
@@ -44,8 +41,7 @@ enum OrderStatus: string
     {
         return match ($this) {
             self::Ordered => 'border-sky-500 text-sky-800 bg-sky-50',
-            self::Delivered => 'border-violet-500 text-violet-800 bg-violet-50',
-            self::PaymentPending => 'border-amber-500 text-amber-900 bg-amber-50',
+            self::AwaitingPayment => 'border-amber-500 text-amber-900 bg-amber-50',
             self::Paid => 'border-emerald-500 text-emerald-800 bg-emerald-50',
         };
     }
@@ -54,9 +50,17 @@ enum OrderStatus: string
     {
         return match ($this) {
             self::Ordered => 'bg-sky-100 text-sky-800',
-            self::Delivered => 'bg-violet-100 text-violet-800',
-            self::PaymentPending => 'bg-amber-100 text-amber-900',
+            self::AwaitingPayment => 'bg-amber-100 text-amber-900',
             self::Paid => 'bg-emerald-100 text-emerald-800',
+        };
+    }
+
+    /** Map legacy status query/values to the current three-stage flow. */
+    public static function normalize(?string $status): string
+    {
+        return match ($status) {
+            'delivered', 'payment_pending' => self::AwaitingPayment->value,
+            default => (string) ($status ?? ''),
         };
     }
 

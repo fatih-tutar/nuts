@@ -21,7 +21,7 @@ class OrderController extends Controller
             ->orderBy('product_id')
             ->get();
 
-        $status = $request->query('status', '');
+        $status = OrderStatus::normalize($request->query('status'));
         // First visit: default to latest season. Explicit empty season_id = all seasons.
         $seasonId = $request->has('season_id')
             ? $request->query('season_id')
@@ -29,7 +29,7 @@ class OrderController extends Controller
 
         $orders = Order::query()
             ->with(['customer', 'season.product'])
-            ->when($status !== '' && $status !== null, fn ($q) => $q->where('status', $status))
+            ->when($status !== '', fn ($q) => $q->where('status', $status))
             ->when($seasonId !== '' && $seasonId !== null, fn ($q) => $q->where('season_id', $seasonId))
             ->latest('id')
             ->paginate(40)
@@ -110,14 +110,16 @@ class OrderController extends Controller
      */
     private function indexQuery(Request $request, int|string|null $fallbackSeasonId = null): array
     {
-        $status = $request->input('_return_status', $request->query('status'));
+        $status = OrderStatus::normalize(
+            $request->input('_return_status', $request->query('status'))
+        );
         $hasReturnSeason = $request->has('_return_season_id');
         $seasonId = $hasReturnSeason
             ? $request->input('_return_season_id')
             : ($request->has('season_id') ? $request->query('season_id') : $fallbackSeasonId);
 
         return array_filter([
-            'status' => $status !== null && $status !== '' ? $status : null,
+            'status' => $status !== '' ? $status : null,
             'season_id' => $seasonId,
         ], fn ($value) => $value !== null);
     }

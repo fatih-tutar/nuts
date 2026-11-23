@@ -38,7 +38,7 @@
                     </select>
                 </form>
 
-                <div class="grid grid-cols-[0.7fr_1.15fr_1.15fr_1.45fr_1.15fr] border-b border-gray-200" role="tablist" aria-label="Sipariş durumu">
+                <div class="grid grid-cols-[0.75fr_1fr_1.45fr_1.1fr] border-b border-gray-200" role="tablist" aria-label="Sipariş durumu">
                     <a
                         href="{{ route('orders.index', $seasonQuery) }}"
                         role="tab"
