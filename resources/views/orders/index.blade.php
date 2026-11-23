@@ -25,12 +25,12 @@
             @endphp
 
             <div class="space-y-3">
-                <form method="GET" class="max-w-md">
+                <form method="GET" class="flex items-center gap-3 max-w-xl">
                     @if ($activeStatus !== '')
                         <input type="hidden" name="status" value="{{ $activeStatus }}">
                     @endif
-                    <x-input-label for="filter_season_id" value="Sezon" />
-                    <select id="filter_season_id" name="season_id" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                    <x-input-label for="filter_season_id" value="Sezon" class="!mb-0 shrink-0" />
+                    <select id="filter_season_id" name="season_id" onchange="this.form.submit()" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
                         <option value="">Tümü</option>
                         @foreach ($seasons as $season)
                             <option value="{{ $season->id }}" @selected((string) ($filters['season_id'] ?? '') === (string) $season->id)>{{ $season->displayName() }}</option>
@@ -38,12 +38,12 @@
                     </select>
                 </form>
 
-                <div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" role="tablist" aria-label="Sipariş durumu">
+                <div class="grid grid-cols-5 border-b border-gray-200" role="tablist" aria-label="Sipariş durumu">
                     <a
                         href="{{ route('orders.index', $seasonQuery) }}"
                         role="tab"
                         aria-selected="{{ $activeStatus === '' ? 'true' : 'false' }}"
-                        class="shrink-0 inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset transition {{ $activeStatus === '' ? 'bg-gray-800 text-white ring-gray-800 shadow-sm' : 'bg-gray-100 text-gray-700 ring-gray-200 hover:bg-gray-200' }}"
+                        class="min-w-0 px-1 py-2.5 text-center text-[11px] sm:text-sm font-semibold border-b-2 -mb-px transition {{ $activeStatus === '' ? 'border-gray-800 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                     >
                         Tümü
                     </a>
@@ -52,9 +52,9 @@
                             href="{{ route('orders.index', array_merge($seasonQuery, ['status' => $statusCase->value])) }}"
                             role="tab"
                             aria-selected="{{ $activeStatus === $statusCase->value ? 'true' : 'false' }}"
-                            class="shrink-0 inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset transition {{ $statusCase->tabClasses($activeStatus === $statusCase->value) }}"
+                            class="min-w-0 px-1 py-2.5 text-center text-[11px] sm:text-sm font-semibold border-b-2 -mb-px transition {{ $statusCase->tabClasses($activeStatus === $statusCase->value) }}"
                         >
-                            {{ $statusCase->shortLabel() }}
+                            {{ $statusCase->tabLabel() }}
                         </a>
                     @endforeach
                 </div>
