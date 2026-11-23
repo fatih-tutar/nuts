@@ -13,25 +13,25 @@
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
+    <div class="py-4 sm:py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3 sm:space-y-4">
             @if (session('status'))
                 <div class="bg-green-50 text-green-800 px-4 py-3 rounded-md text-sm">{{ session('status') }}</div>
             @endif
 
-            <form method="GET" class="flex flex-wrap gap-4 items-end">
-                <div>
+            <form method="GET" class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:gap-4 items-end">
+                <div class="min-w-0">
                     <x-input-label for="filter_season_id" value="Sezon" />
-                    <select id="filter_season_id" name="season_id" onchange="this.form.submit()" class="mt-1 block border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                    <select id="filter_season_id" name="season_id" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
                         <option value="">Tümü</option>
                         @foreach ($seasons as $season)
                             <option value="{{ $season->id }}" @selected((string) ($filters['season_id'] ?? '') === (string) $season->id)>{{ $season->displayName() }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div>
+                <div class="min-w-0">
                     <x-input-label for="filter_status" value="Durum" />
-                    <select id="filter_status" name="status" onchange="this.form.submit()" class="mt-1 block border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                    <select id="filter_status" name="status" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
                         <option value="">Tümü</option>
                         @foreach ($statuses as $value => $label)
                             <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
@@ -41,30 +41,28 @@
             </form>
 
             <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <table class="min-w-full table-fixed divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500">Müşteri</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500">Sezon</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-500">Kg</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-500">Tutar ₺</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500">Durum</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-500"></th>
+                            <th class="w-[40%] px-3 sm:px-4 py-3 text-left font-medium text-gray-500">Müşteri</th>
+                            <th class="w-[12%] px-2 sm:px-4 py-3 text-right font-medium text-gray-500">Kg</th>
+                            <th class="w-[16%] px-2 sm:px-4 py-3 text-right font-medium text-gray-500">Tutar ₺</th>
+                            <th class="w-[20%] px-2 sm:px-4 py-3 text-left font-medium text-gray-500">Durum</th>
+                            <th class="w-[12%] px-2 sm:px-4 py-3 text-right font-medium text-gray-500"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse ($orders as $order)
                             <tr>
-                                <td class="px-4 py-3 text-gray-900 font-medium">
+                                <td class="px-3 sm:px-4 py-3 text-gray-900 font-medium">
                                     @if ($order->customer)
-                                        <a href="{{ route('customers.show', $order->customer) }}" class="hover:underline">{{ $order->customer->name }}</a>
+                                        <a href="{{ route('customers.show', $order->customer) }}" class="hover:underline break-words">{{ $order->customer->name }}</a>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-gray-600">{{ $order->season?->displayName() }}</td>
-                                <td class="px-4 py-3 text-right text-gray-700">{{ number_format((float) $order->quantity_kg, 2, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-gray-700">{{ number_format($order->revenueTry(), 2, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-gray-700">{{ $order->status->label() }}</td>
-                                <td class="px-4 py-3 text-right space-x-3 whitespace-nowrap">
+                                <td class="px-2 sm:px-4 py-3 text-right text-gray-700 whitespace-nowrap">{{ number_format((float) $order->quantity_kg, 2, ',', '.') }}</td>
+                                <td class="px-2 sm:px-4 py-3 text-right text-gray-700 whitespace-nowrap">{{ number_format($order->revenueTry(), 2, ',', '.') }}</td>
+                                <td class="px-2 sm:px-4 py-3 text-gray-700">{{ $order->status->label() }}</td>
+                                <td class="px-2 sm:px-4 py-3 text-right space-x-2 sm:space-x-3 whitespace-nowrap">
                                     <a href="{{ route('orders.index', ['edit' => $order->id, 'season_id' => $filters['season_id'] ?? $order->season_id]) }}" class="text-indigo-600 hover:underline">Düzenle</a>
                                     <form action="{{ route('orders.destroy', $order) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
                                         @csrf
@@ -75,7 +73,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">Sipariş bulunamadı.</td>
+                                <td colspan="5" class="px-4 py-8 text-center text-gray-500">Sipariş bulunamadı.</td>
                             </tr>
                         @endforelse
                     </tbody>
