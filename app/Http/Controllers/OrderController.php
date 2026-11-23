@@ -71,16 +71,16 @@ class OrderController extends Controller
         $order = Order::query()->create($data);
 
         return redirect()
-            ->route('orders.index', ['season_id' => $order->season_id])
+            ->route('orders.index', $this->indexQuery($request, $order->season_id))
             ->with('status', 'Sipariş oluşturuldu.');
     }
 
-    public function edit(Order $order): RedirectResponse
+    public function edit(Request $request, Order $order): RedirectResponse
     {
-        return redirect()->route('orders.index', [
-            'edit' => $order->id,
-            'season_id' => $order->season_id,
-        ]);
+        return redirect()->route('orders.index', array_merge(
+            $this->indexQuery($request, $order->season_id),
+            ['edit' => $order->id],
+        ));
     }
 
     public function update(Request $request, Order $order): RedirectResponse
@@ -89,18 +89,37 @@ class OrderController extends Controller
         $order->update($data);
 
         return redirect()
-            ->route('orders.index', ['season_id' => $order->season_id])
+            ->route('orders.index', $this->indexQuery($request, $order->season_id))
             ->with('status', 'Sipariş güncellendi.');
     }
 
-    public function destroy(Order $order): RedirectResponse
+    public function destroy(Request $request, Order $order): RedirectResponse
     {
         $seasonId = $order->season_id;
         $order->delete();
 
         return redirect()
-            ->route('orders.index', ['season_id' => $seasonId])
+            ->route('orders.index', $this->indexQuery($request, $seasonId))
             ->with('status', 'Sipariş silindi.');
+    }
+
+    /**
+     * Preserve list filters (status tab + season) after create/update/delete.
+     *
+     * @return array<string, mixed>
+     */
+    private function indexQuery(Request $request, int|string|null $fallbackSeasonId = null): array
+    {
+        $status = $request->input('_return_status', $request->query('status'));
+        $hasReturnSeason = $request->has('_return_season_id');
+        $seasonId = $hasReturnSeason
+            ? $request->input('_return_season_id')
+            : ($request->has('season_id') ? $request->query('season_id') : $fallbackSeasonId);
+
+        return array_filter([
+            'status' => $status !== null && $status !== '' ? $status : null,
+            'season_id' => $seasonId,
+        ], fn ($value) => $value !== null);
     }
 
     /** @return array<string, mixed> */

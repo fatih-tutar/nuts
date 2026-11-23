@@ -83,6 +83,8 @@
                                         <form action="{{ route('orders.destroy', $order) }}" method="POST" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
                                             @csrf
                                             @method('DELETE')
+                                            <input type="hidden" name="_return_status" value="{{ $activeStatus }}">
+                                            <input type="hidden" name="_return_season_id" value="{{ $filters['season_id'] ?? '' }}">
                                             <x-row-menu-button variant="danger">Sil</x-row-menu-button>
                                         </form>
                                     </x-row-menu>
@@ -124,6 +126,8 @@
         <form method="POST" action="{{ route('orders.store') }}" class="space-y-4">
             @csrf
             <input type="hidden" name="_modal" value="create-order">
+            <input type="hidden" name="_return_status" value="{{ $activeStatus }}">
+            <input type="hidden" name="_return_season_id" value="{{ $filters['season_id'] ?? '' }}">
             @include('orders._form', [
                 'idPrefix' => 'create_',
                 'order' => null,
@@ -147,6 +151,8 @@
                 @method('PUT')
                 <input type="hidden" name="_modal" value="edit-order">
                 <input type="hidden" name="_edit_id" value="{{ $editing->id }}">
+                <input type="hidden" name="_return_status" value="{{ $activeStatus }}">
+                <input type="hidden" name="_return_season_id" value="{{ $filters['season_id'] ?? '' }}">
                 @include('orders._form', [
                     'idPrefix' => 'edit_',
                     'order' => $editing,
