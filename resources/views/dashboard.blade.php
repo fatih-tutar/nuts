@@ -63,6 +63,74 @@
                     </div>
                 @endif
             </div>
+
+            @php
+                $seasonRows = collect($seasonDetails)
+                    ->sortBy([
+                        ['year', 'desc'],
+                        ['slug', 'asc'],
+                    ])
+                    ->values();
+            @endphp
+
+            <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Yıllara göre durum</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-medium text-gray-500">Sezon</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-500">Ürün</th>
+                                <th class="px-4 py-3 text-right font-medium text-gray-500">Toplam kg</th>
+                                <th class="px-4 py-3 text-right font-medium text-gray-500">Sipariş</th>
+                                <th class="px-4 py-3 text-right font-medium text-gray-500">Ort. kg</th>
+                                <th class="px-4 py-3 text-right font-medium text-gray-500">Birim ₺</th>
+                                <th class="px-4 py-3 text-right font-medium text-gray-500">Dolar</th>
+                                <th class="px-4 py-3 text-right font-medium text-gray-500">Altın</th>
+                                <th class="px-4 py-3 text-right font-medium text-gray-500">Ciro ₺</th>
+                                <th class="px-4 py-3 text-right font-medium text-gray-500">Ciro $</th>
+                                <th class="px-4 py-3 text-right font-medium text-gray-500">Ciro altın</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse ($seasonRows as $row)
+                                <tr
+                                    class="hover:bg-gray-50 cursor-pointer"
+                                    x-on:click="showDetail(@js($row['key']))"
+                                >
+                                    <td class="px-4 py-3 text-gray-900 font-medium whitespace-nowrap">{{ $row['year'] }}</td>
+                                    <td class="px-4 py-3 text-gray-700 whitespace-nowrap">{{ $row['product'] }}</td>
+                                    <td class="px-4 py-3 text-right text-gray-700 tabular-nums">{{ number_format($row['total_kg'], 2, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-right text-gray-700 tabular-nums">{{ number_format($row['order_count'], 0, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-right text-gray-600 tabular-nums">
+                                        {{ $row['avg_order_kg'] !== null ? number_format($row['avg_order_kg'], 2, ',', '.') : '—' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-right text-gray-600 tabular-nums">{{ number_format($row['unit_price'], 2, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-right text-gray-600 tabular-nums">
+                                        {{ $row['usd_rate'] !== null ? number_format($row['usd_rate'], 2, ',', '.') : '—' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-right text-gray-600 tabular-nums">
+                                        {{ $row['gold_price'] !== null ? number_format($row['gold_price'], 2, ',', '.') : '—' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-right text-gray-900 font-medium tabular-nums">{{ number_format($row['revenue_try'], 2, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-right text-gray-700 tabular-nums">
+                                        {{ $row['revenue_usd'] !== null ? number_format($row['revenue_usd'], 2, ',', '.') : '—' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-right text-gray-700 tabular-nums">
+                                        {{ $row['revenue_gold'] !== null ? number_format($row['revenue_gold'], 2, ',', '.') : '—' }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="11" class="px-4 py-8 text-center text-gray-500">Henüz sezon verisi yok.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div
