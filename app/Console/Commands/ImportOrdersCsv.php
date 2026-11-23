@@ -45,7 +45,7 @@ class ImportOrdersCsv extends Command
     public function handle(): int
     {
         $path = $this->argument('path')
-            ?? storage_path('app/imports/ceviz-badem-siparis.csv');
+            ?? database_path('data/ceviz-badem-siparis.csv');
 
         if (! is_readable($path)) {
             $this->error("CSV okunamadı: {$path}");
