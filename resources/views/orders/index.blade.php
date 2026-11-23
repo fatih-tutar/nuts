@@ -19,8 +19,16 @@
                 <div class="bg-green-50 text-green-800 px-4 py-3 rounded-md text-sm">{{ session('status') }}</div>
             @endif
 
-            <form method="GET" class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:gap-4 items-end">
-                <div class="min-w-0">
+            @php
+                $activeStatus = (string) ($filters['status'] ?? '');
+                $seasonQuery = ['season_id' => $filters['season_id'] ?? ''];
+            @endphp
+
+            <div class="space-y-3">
+                <form method="GET" class="max-w-md">
+                    @if ($activeStatus !== '')
+                        <input type="hidden" name="status" value="{{ $activeStatus }}">
+                    @endif
                     <x-input-label for="filter_season_id" value="Sezon" />
                     <select id="filter_season_id" name="season_id" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
                         <option value="">Tümü</option>
@@ -28,27 +36,40 @@
                             <option value="{{ $season->id }}" @selected((string) ($filters['season_id'] ?? '') === (string) $season->id)>{{ $season->displayName() }}</option>
                         @endforeach
                     </select>
+                </form>
+
+                <div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" role="tablist" aria-label="Sipariş durumu">
+                    <a
+                        href="{{ route('orders.index', $seasonQuery) }}"
+                        role="tab"
+                        aria-selected="{{ $activeStatus === '' ? 'true' : 'false' }}"
+                        class="shrink-0 inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset transition {{ $activeStatus === '' ? 'bg-gray-800 text-white ring-gray-800 shadow-sm' : 'bg-gray-100 text-gray-700 ring-gray-200 hover:bg-gray-200' }}"
+                    >
+                        Tümü
+                    </a>
+                    @foreach (\App\Enums\OrderStatus::cases() as $statusCase)
+                        <a
+                            href="{{ route('orders.index', array_merge($seasonQuery, ['status' => $statusCase->value])) }}"
+                            role="tab"
+                            aria-selected="{{ $activeStatus === $statusCase->value ? 'true' : 'false' }}"
+                            class="shrink-0 inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset transition {{ $statusCase->tabClasses($activeStatus === $statusCase->value) }}"
+                        >
+                            {{ $statusCase->shortLabel() }}
+                        </a>
+                    @endforeach
                 </div>
-                <div class="min-w-0">
-                    <x-input-label for="filter_status" value="Durum" />
-                    <select id="filter_status" name="status" onchange="this.form.submit()" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
-                        <option value="">Tümü</option>
-                        @foreach ($statuses as $value => $label)
-                            <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </form>
+            </div>
 
             <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto">
-                <table class="min-w-full table-fixed divide-y divide-gray-200 text-sm">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="w-[40%] px-3 sm:px-4 py-3 text-left font-medium text-gray-500">Müşteri</th>
-                            <th class="w-[12%] px-2 sm:px-4 py-3 text-right font-medium text-gray-500">Kg</th>
-                            <th class="w-[16%] px-2 sm:px-4 py-3 text-right font-medium text-gray-500">Tutar ₺</th>
-                            <th class="w-[20%] px-2 sm:px-4 py-3 text-left font-medium text-gray-500">Durum</th>
-                            <th class="w-[12%] px-2 sm:px-4 py-3 text-right font-medium text-gray-500"></th>
+                            <th class="px-3 sm:px-4 py-3 text-left font-medium text-gray-500">Müşteri</th>
+                            <th class="hidden md:table-cell px-4 py-3 text-left font-medium text-gray-500">Sezon</th>
+                            <th class="px-2 sm:px-4 py-3 text-right font-medium text-gray-500">Kg</th>
+                            <th class="px-2 sm:px-4 py-3 text-right font-medium text-gray-500">Tutar ₺</th>
+                            <th class="hidden md:table-cell px-4 py-3 text-left font-medium text-gray-500">Durum</th>
+                            <th class="px-2 sm:px-4 py-3 text-right font-medium text-gray-500"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -59,11 +80,16 @@
                                         <a href="{{ route('customers.show', $order->customer) }}" class="hover:underline break-words">{{ $order->customer->name }}</a>
                                     @endif
                                 </td>
+                                <td class="hidden md:table-cell px-4 py-3 text-gray-600 whitespace-nowrap">{{ $order->season?->displayName() }}</td>
                                 <td class="px-2 sm:px-4 py-3 text-right text-gray-700 whitespace-nowrap">{{ number_format((float) $order->quantity_kg, 2, ',', '.') }}</td>
                                 <td class="px-2 sm:px-4 py-3 text-right text-gray-700 whitespace-nowrap">{{ number_format($order->revenueTry(), 2, ',', '.') }}</td>
-                                <td class="px-2 sm:px-4 py-3 text-gray-700">{{ $order->status->label() }}</td>
+                                <td class="hidden md:table-cell px-4 py-3">
+                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $order->status->badgeClasses() }}">
+                                        {{ $order->status->shortLabel() }}
+                                    </span>
+                                </td>
                                 <td class="px-2 sm:px-4 py-3 text-right space-x-2 sm:space-x-3 whitespace-nowrap">
-                                    <a href="{{ route('orders.index', ['edit' => $order->id, 'season_id' => $filters['season_id'] ?? $order->season_id]) }}" class="text-indigo-600 hover:underline">Düzenle</a>
+                                    <a href="{{ route('orders.index', array_filter(['edit' => $order->id, 'season_id' => $filters['season_id'] ?? $order->season_id, 'status' => $activeStatus !== '' ? $activeStatus : null])) }}" class="text-indigo-600 hover:underline">Düzenle</a>
                                     <form action="{{ route('orders.destroy', $order) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
                                         @csrf
                                         @method('DELETE')
@@ -73,7 +99,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-8 text-center text-gray-500">Sipariş bulunamadı.</td>
+                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">Sipariş bulunamadı.</td>
                             </tr>
                         @endforelse
                     </tbody>

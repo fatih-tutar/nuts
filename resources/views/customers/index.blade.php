@@ -24,12 +24,14 @@
                 <x-primary-button>Ara</x-primary-button>
             </form>
 
-            <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
+            <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">İsim</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-500">Telefon</th>
+                            <th class="hidden md:table-cell px-4 py-3 text-left font-medium text-gray-500">Şehir</th>
+                            <th class="hidden md:table-cell px-4 py-3 text-left font-medium text-gray-500">Adres</th>
                             <th class="px-4 py-3 text-right font-medium text-gray-500"></th>
                         </tr>
                     </thead>
@@ -46,6 +48,8 @@
                                         —
                                     @endif
                                 </td>
+                                <td class="hidden md:table-cell px-4 py-3 text-gray-600">{{ $customer->city ?: '—' }}</td>
+                                <td class="hidden md:table-cell px-4 py-3 text-gray-600 max-w-xs truncate" title="{{ $customer->address }}">{{ $customer->address ?: '—' }}</td>
                                 <td class="px-4 py-3 text-right space-x-3 whitespace-nowrap">
                                     <a href="{{ route('orders.create', ['customer_id' => $customer->id]) }}" class="text-gray-700 hover:underline">Sipariş</a>
                                     <a href="{{ route('customers.index', ['edit' => $customer->id, 'q' => $q]) }}" class="text-indigo-600 hover:underline">Düzenle</a>
@@ -58,7 +62,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="px-4 py-8 text-center text-gray-500">Müşteri bulunamadı.</td>
+                                <td colspan="5" class="px-4 py-8 text-center text-gray-500">Müşteri bulunamadı.</td>
                             </tr>
                         @endforelse
                     </tbody>
