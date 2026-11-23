@@ -18,6 +18,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('products', ProductController::class)->except(['show']);
     Route::resource('customers', CustomerController::class);
     Route::resource('seasons', SeasonController::class)->except(['show']);
+    Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])
+        ->name('orders.update-status');
     Route::resource('orders', OrderController::class)->except(['show']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

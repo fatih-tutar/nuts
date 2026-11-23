@@ -93,6 +93,19 @@ class OrderController extends Controller
             ->with('status', 'Sipariş güncellendi.');
     }
 
+    public function updateStatus(Request $request, Order $order): RedirectResponse
+    {
+        $data = $request->validate([
+            'status' => ['required', Rule::enum(OrderStatus::class)],
+        ]);
+
+        $order->update(['status' => $data['status']]);
+
+        return redirect()
+            ->route('orders.index', $this->indexQuery($request, $order->season_id))
+            ->with('status', 'Sipariş durumu güncellendi.');
+    }
+
     public function destroy(Request $request, Order $order): RedirectResponse
     {
         $seasonId = $order->season_id;

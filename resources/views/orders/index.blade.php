@@ -82,6 +82,26 @@
                                                 Ara
                                             </x-row-menu-link>
                                         @endif
+                                        @if ($order->status !== \App\Enums\OrderStatus::AwaitingPayment && $order->status !== \App\Enums\OrderStatus::Paid)
+                                            <form action="{{ route('orders.update-status', $order) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="status" value="{{ \App\Enums\OrderStatus::AwaitingPayment->value }}">
+                                                <input type="hidden" name="_return_status" value="{{ $activeStatus }}">
+                                                <input type="hidden" name="_return_season_id" value="{{ $filters['season_id'] ?? '' }}">
+                                                <x-row-menu-button>Teslim edildi</x-row-menu-button>
+                                            </form>
+                                        @endif
+                                        @if ($order->status !== \App\Enums\OrderStatus::Paid)
+                                            <form action="{{ route('orders.update-status', $order) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="status" value="{{ \App\Enums\OrderStatus::Paid->value }}">
+                                                <input type="hidden" name="_return_status" value="{{ $activeStatus }}">
+                                                <input type="hidden" name="_return_season_id" value="{{ $filters['season_id'] ?? '' }}">
+                                                <x-row-menu-button>Ödeme alındı</x-row-menu-button>
+                                            </form>
+                                        @endif
                                         <x-row-menu-link :href="route('orders.index', array_filter(['edit' => $order->id, 'season_id' => $filters['season_id'] ?? $order->season_id, 'status' => $activeStatus !== '' ? $activeStatus : null]))">
                                             Düzenle
                                         </x-row-menu-link>
