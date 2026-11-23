@@ -15,7 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::query()->updateOrCreate(
+        // Only create the admin once — never overwrite an existing password on deploy.
+        User::query()->firstOrCreate(
             ['email' => env('ADMIN_EMAIL', 'admin@nuts.test')],
             [
                 'name' => env('ADMIN_NAME', 'Admin'),
