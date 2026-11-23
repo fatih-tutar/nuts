@@ -13,7 +13,19 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        Özet
+                    </x-nav-link>
+                    <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">
+                        Siparişler
+                    </x-nav-link>
+                    <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
+                        Müşteriler
+                    </x-nav-link>
+                    <x-nav-link :href="route('seasons.index')" :active="request()->routeIs('seasons.*')">
+                        Sezonlar
+                    </x-nav-link>
+                    <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
+                        Ürünler
                     </x-nav-link>
                 </div>
             </div>
@@ -68,7 +80,19 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+                Özet
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">
+                Siparişler
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
+                Müşteriler
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('seasons.index')" :active="request()->routeIs('seasons.*')">
+                Sezonlar
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
+                Ürünler
             </x-responsive-nav-link>
         </div>
 
