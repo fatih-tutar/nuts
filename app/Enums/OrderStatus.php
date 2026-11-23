@@ -37,21 +37,16 @@ enum OrderStatus: string
 
     public function tabIdleClasses(): string
     {
-        return match ($this) {
-            self::Ordered => 'border-transparent text-sky-800/60 hover:bg-sky-50 hover:text-sky-900',
-            self::Delivered => 'border-transparent text-violet-800/60 hover:bg-violet-50 hover:text-violet-900',
-            self::PaymentPending => 'border-transparent text-amber-900/60 hover:bg-amber-50 hover:text-amber-950',
-            self::Paid => 'border-transparent text-emerald-800/60 hover:bg-emerald-50 hover:text-emerald-900',
-        };
+        return 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300';
     }
 
     public function tabActiveClasses(): string
     {
         return match ($this) {
-            self::Ordered => 'border-sky-600 bg-sky-600 text-white shadow-sm',
-            self::Delivered => 'border-violet-600 bg-violet-600 text-white shadow-sm',
-            self::PaymentPending => 'border-amber-500 bg-amber-500 text-white shadow-sm',
-            self::Paid => 'border-emerald-600 bg-emerald-600 text-white shadow-sm',
+            self::Ordered => 'border-sky-500 text-sky-800 bg-sky-50',
+            self::Delivered => 'border-violet-500 text-violet-800 bg-violet-50',
+            self::PaymentPending => 'border-amber-500 text-amber-900 bg-amber-50',
+            self::Paid => 'border-emerald-500 text-emerald-800 bg-emerald-50',
         };
     }
 
