@@ -2,7 +2,14 @@
     <x-slot name="header">
         <div class="flex items-center justify-between gap-4 flex-wrap">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Siparişler</h2>
-            <a href="{{ route('orders.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Yeni sipariş</a>
+            <button
+                type="button"
+                x-data=""
+                x-on:click="$dispatch('open-modal', 'create-order')"
+                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700"
+            >
+                Yeni sipariş
+            </button>
         </div>
     </x-slot>
 
@@ -12,26 +19,25 @@
                 <div class="bg-green-50 text-green-800 px-4 py-3 rounded-md text-sm">{{ session('status') }}</div>
             @endif
 
-            <form method="GET" class="flex flex-wrap gap-2 items-end">
+            <form method="GET" class="flex flex-wrap gap-4 items-end">
                 <div>
-                    <x-input-label for="season_id" value="Sezon" />
-                    <select id="season_id" name="season_id" class="mt-1 block border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                    <x-input-label for="filter_season_id" value="Sezon" />
+                    <select id="filter_season_id" name="season_id" onchange="this.form.submit()" class="mt-1 block border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
                         <option value="">Tümü</option>
                         @foreach ($seasons as $season)
-                            <option value="{{ $season->id }}" @selected(($filters['season_id'] ?? '') == $season->id)>{{ $season->displayName() }}</option>
+                            <option value="{{ $season->id }}" @selected((string) ($filters['season_id'] ?? '') === (string) $season->id)>{{ $season->displayName() }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
-                    <x-input-label for="status" value="Durum" />
-                    <select id="status" name="status" class="mt-1 block border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                    <x-input-label for="filter_status" value="Durum" />
+                    <select id="filter_status" name="status" onchange="this.form.submit()" class="mt-1 block border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
                         <option value="">Tümü</option>
                         @foreach ($statuses as $value => $label)
                             <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>
-                <x-primary-button>Filtrele</x-primary-button>
             </form>
 
             <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto">
@@ -59,7 +65,7 @@
                                 <td class="px-4 py-3 text-right text-gray-700">{{ number_format($order->revenueTry(), 2, ',', '.') }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ $order->status->label() }}</td>
                                 <td class="px-4 py-3 text-right space-x-3 whitespace-nowrap">
-                                    <a href="{{ route('orders.edit', $order) }}" class="text-indigo-600 hover:underline">Düzenle</a>
+                                    <a href="{{ route('orders.index', ['edit' => $order->id, 'season_id' => $filters['season_id'] ?? $order->season_id]) }}" class="text-indigo-600 hover:underline">Düzenle</a>
                                     <form action="{{ route('orders.destroy', $order) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
                                         @csrf
                                         @method('DELETE')
@@ -79,4 +85,46 @@
             <div>{{ $orders->links() }}</div>
         </div>
     </div>
+
+    <x-form-modal name="create-order" title="Yeni sipariş" :show="$showCreateModal" maxWidth="2xl">
+        <form method="POST" action="{{ route('orders.store') }}" class="space-y-4">
+            @csrf
+            <input type="hidden" name="_modal" value="create-order">
+            @include('orders._form', [
+                'idPrefix' => 'create_',
+                'order' => null,
+                'customers' => $customers,
+                'seasons' => $seasons,
+                'statuses' => $statuses,
+                'selectedCustomerId' => $selectedCustomerId,
+                'selectedSeasonId' => $selectedSeasonId,
+            ])
+            <div class="flex gap-3 pt-2">
+                <x-primary-button>Kaydet</x-primary-button>
+                <button type="button" x-on:click="$dispatch('close')" class="inline-flex items-center px-4 py-2 text-sm text-gray-600 hover:underline">İptal</button>
+            </div>
+        </form>
+    </x-form-modal>
+
+    @if ($editing)
+        <x-form-modal name="edit-order" title="Sipariş düzenle" :show="$showEditModal" maxWidth="2xl">
+            <form method="POST" action="{{ route('orders.update', $editing) }}" class="space-y-4">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="_modal" value="edit-order">
+                <input type="hidden" name="_edit_id" value="{{ $editing->id }}">
+                @include('orders._form', [
+                    'idPrefix' => 'edit_',
+                    'order' => $editing,
+                    'customers' => $customers,
+                    'seasons' => $seasons,
+                    'statuses' => $statuses,
+                ])
+                <div class="flex gap-3 pt-2">
+                    <x-primary-button>Güncelle</x-primary-button>
+                    <button type="button" x-on:click="$dispatch('close')" class="inline-flex items-center px-4 py-2 text-sm text-gray-600 hover:underline">İptal</button>
+                </div>
+            </form>
+        </x-form-modal>
+    @endif
 </x-app-layout>

@@ -25,12 +25,22 @@ class CustomerController extends Controller
             ->paginate(30)
             ->withQueryString();
 
-        return view('customers.index', compact('customers', 'q'));
+        $editing = $this->resolveEditing($request);
+        $showCreateModal = $request->boolean('create') || old('_modal') === 'create-customer';
+        $showEditModal = $editing !== null || old('_modal') === 'edit-customer';
+
+        return view('customers.index', compact(
+            'customers',
+            'q',
+            'editing',
+            'showCreateModal',
+            'showEditModal',
+        ));
     }
 
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        return view('customers.create');
+        return redirect()->route('customers.index', ['create' => 1]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -48,7 +58,7 @@ class CustomerController extends Controller
         return redirect()->route('customers.show', $customer)->with('status', 'Müşteri eklendi.');
     }
 
-    public function show(Customer $customer): View
+    public function show(Request $request, Customer $customer): View
     {
         $customer->load(['orders.season.product']);
 
@@ -88,6 +98,8 @@ class CustomerController extends Controller
             'order_count' => 0,
         ]);
 
+        $showEditModal = $request->boolean('edit') || old('_modal') === 'edit-customer';
+
         return view('customers.show', [
             'customer' => $customer,
             'orders' => $orders,
@@ -95,12 +107,13 @@ class CustomerController extends Controller
             'bademTotal' => $bademTotal,
             'grandKg' => round((float) $orders->sum('quantity_kg'), 2),
             'grandRevenue' => round($orders->sum(fn ($order) => $order->revenueTry()), 2),
+            'showEditModal' => $showEditModal,
         ]);
     }
 
-    public function edit(Customer $customer): View
+    public function edit(Customer $customer): RedirectResponse
     {
-        return view('customers.edit', compact('customer'));
+        return redirect()->route('customers.show', ['customer' => $customer, 'edit' => 1]);
     }
 
     public function update(Request $request, Customer $customer): RedirectResponse
@@ -123,5 +136,12 @@ class CustomerController extends Controller
         $customer->delete();
 
         return redirect()->route('customers.index')->with('status', 'Müşteri silindi.');
+    }
+
+    private function resolveEditing(Request $request): ?Customer
+    {
+        $id = $request->query('edit') ?: (old('_modal') === 'edit-customer' ? old('_edit_id') : null);
+
+        return $id ? Customer::query()->find($id) : null;
     }
 }

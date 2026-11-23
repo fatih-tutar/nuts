@@ -9,16 +9,20 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $products = Product::query()->orderBy('sort_order')->orderBy('name')->get();
 
-        return view('products.index', compact('products'));
+        $editing = $this->resolveEditing($request);
+        $showCreateModal = $request->boolean('create') || old('_modal') === 'create-product';
+        $showEditModal = $editing !== null || old('_modal') === 'edit-product';
+
+        return view('products.index', compact('products', 'editing', 'showCreateModal', 'showEditModal'));
     }
 
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        return view('products.create');
+        return redirect()->route('products.index', ['create' => 1]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -38,9 +42,9 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('status', 'Ürün eklendi.');
     }
 
-    public function edit(Product $product): View
+    public function edit(Product $product): RedirectResponse
     {
-        return view('products.edit', compact('product'));
+        return redirect()->route('products.index', ['edit' => $product->id]);
     }
 
     public function update(Request $request, Product $product): RedirectResponse
@@ -65,5 +69,12 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')->with('status', 'Ürün silindi.');
+    }
+
+    private function resolveEditing(Request $request): ?Product
+    {
+        $id = $request->query('edit') ?: (old('_modal') === 'edit-product' ? old('_edit_id') : null);
+
+        return $id ? Product::query()->find($id) : null;
     }
 }

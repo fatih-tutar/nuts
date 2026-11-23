@@ -4,7 +4,14 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ $customer->name }}</h2>
             <div class="flex gap-2">
                 <a href="{{ route('orders.create', ['customer_id' => $customer->id]) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Sipariş ekle</a>
-                <a href="{{ route('customers.edit', $customer) }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">Düzenle</a>
+                <button
+                    type="button"
+                    x-data=""
+                    x-on:click="$dispatch('open-modal', 'edit-customer')"
+                    class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50"
+                >
+                    Düzenle
+                </button>
             </div>
         </div>
     </x-slot>
@@ -24,7 +31,13 @@
                     </div>
                     <div>
                         <dt class="text-gray-500">Telefon</dt>
-                        <dd class="mt-1 text-gray-900">{{ $customer->phone ?: '—' }}</dd>
+                        <dd class="mt-1 text-gray-900">
+                            @if ($customer->phone)
+                                <a href="tel:{{ preg_replace('/\s+/', '', $customer->phone) }}" class="text-indigo-600 hover:underline">{{ $customer->phone }}</a>
+                            @else
+                                —
+                            @endif
+                        </dd>
                     </div>
                     <div>
                         <dt class="text-gray-500">Şehir</dt>
@@ -104,4 +117,18 @@
             </div>
         </div>
     </div>
+
+    <x-form-modal name="edit-customer" title="Müşteri düzenle" :show="$showEditModal">
+        <form method="POST" action="{{ route('customers.update', $customer) }}" class="space-y-4">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="_modal" value="edit-customer">
+            <input type="hidden" name="_edit_id" value="{{ $customer->id }}">
+            @include('customers._form', ['idPrefix' => 'show_edit_', 'customer' => $customer])
+            <div class="flex gap-3 pt-2">
+                <x-primary-button>Güncelle</x-primary-button>
+                <button type="button" x-on:click="$dispatch('close')" class="inline-flex items-center px-4 py-2 text-sm text-gray-600 hover:underline">İptal</button>
+            </div>
+        </form>
+    </x-form-modal>
 </x-app-layout>

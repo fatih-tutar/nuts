@@ -2,7 +2,14 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Sezonlar</h2>
-            <a href="{{ route('seasons.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Yeni sezon</a>
+            <button
+                type="button"
+                x-data=""
+                x-on:click="$dispatch('open-modal', 'create-season')"
+                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700"
+            >
+                Yeni sezon
+            </button>
         </div>
     </x-slot>
 
@@ -46,7 +53,7 @@
                                 <td class="px-4 py-3 text-right text-gray-600">{{ $gold !== null ? number_format($gold, 2, ',', '.') : '—' }}</td>
                                 <td class="px-4 py-3 text-right space-x-3 whitespace-nowrap">
                                     <a href="{{ route('orders.index', ['season_id' => $season->id]) }}" class="text-gray-700 hover:underline">Siparişler</a>
-                                    <a href="{{ route('seasons.edit', $season) }}" class="text-indigo-600 hover:underline">Düzenle</a>
+                                    <a href="{{ route('seasons.index', ['edit' => $season->id]) }}" class="text-indigo-600 hover:underline">Düzenle</a>
                                     <form action="{{ route('seasons.destroy', $season) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
                                         @csrf
                                         @method('DELETE')
@@ -64,4 +71,32 @@
             </div>
         </div>
     </div>
+
+    <x-form-modal name="create-season" title="Yeni sezon" :show="$showCreateModal" maxWidth="2xl">
+        <form method="POST" action="{{ route('seasons.store') }}" class="space-y-4">
+            @csrf
+            <input type="hidden" name="_modal" value="create-season">
+            @include('seasons._form', ['idPrefix' => 'create_', 'season' => null, 'products' => $products])
+            <div class="flex gap-3 pt-2">
+                <x-primary-button>Kaydet</x-primary-button>
+                <button type="button" x-on:click="$dispatch('close')" class="inline-flex items-center px-4 py-2 text-sm text-gray-600 hover:underline">İptal</button>
+            </div>
+        </form>
+    </x-form-modal>
+
+    @if ($editing)
+        <x-form-modal name="edit-season" title="Sezon düzenle" :show="$showEditModal" maxWidth="2xl">
+            <form method="POST" action="{{ route('seasons.update', $editing) }}" class="space-y-4">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="_modal" value="edit-season">
+                <input type="hidden" name="_edit_id" value="{{ $editing->id }}">
+                @include('seasons._form', ['idPrefix' => 'edit_', 'season' => $editing, 'products' => $products])
+                <div class="flex gap-3 pt-2">
+                    <x-primary-button>Güncelle</x-primary-button>
+                    <button type="button" x-on:click="$dispatch('close')" class="inline-flex items-center px-4 py-2 text-sm text-gray-600 hover:underline">İptal</button>
+                </div>
+            </form>
+        </x-form-modal>
+    @endif
 </x-app-layout>

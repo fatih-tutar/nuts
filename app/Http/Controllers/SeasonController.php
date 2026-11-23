@@ -11,7 +11,7 @@ use Illuminate\View\View;
 
 class SeasonController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $seasons = Season::query()
             ->with('product')
@@ -20,14 +20,23 @@ class SeasonController extends Controller
             ->orderBy('product_id')
             ->get();
 
-        return view('seasons.index', compact('seasons'));
+        $products = Product::query()->orderBy('sort_order')->orderBy('name')->get();
+        $editing = $this->resolveEditing($request);
+        $showCreateModal = $request->boolean('create') || old('_modal') === 'create-season';
+        $showEditModal = $editing !== null || old('_modal') === 'edit-season';
+
+        return view('seasons.index', compact(
+            'seasons',
+            'products',
+            'editing',
+            'showCreateModal',
+            'showEditModal',
+        ));
     }
 
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        $products = Product::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
-
-        return view('seasons.create', compact('products'));
+        return redirect()->route('seasons.index', ['create' => 1]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -38,11 +47,9 @@ class SeasonController extends Controller
         return redirect()->route('seasons.index')->with('status', 'Sezon eklendi.');
     }
 
-    public function edit(Season $season): View
+    public function edit(Season $season): RedirectResponse
     {
-        $products = Product::query()->orderBy('sort_order')->orderBy('name')->get();
-
-        return view('seasons.edit', compact('season', 'products'));
+        return redirect()->route('seasons.index', ['edit' => $season->id]);
     }
 
     public function update(Request $request, Season $season): RedirectResponse
@@ -80,5 +87,12 @@ class SeasonController extends Controller
             'gold_price' => ['nullable', 'numeric', 'min:0'],
             'usd_rate' => ['nullable', 'numeric', 'min:0'],
         ]);
+    }
+
+    private function resolveEditing(Request $request): ?Season
+    {
+        $id = $request->query('edit') ?: (old('_modal') === 'edit-season' ? old('_edit_id') : null);
+
+        return $id ? Season::query()->find($id) : null;
     }
 }

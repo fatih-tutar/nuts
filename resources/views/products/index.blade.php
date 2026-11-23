@@ -2,7 +2,14 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Ürünler</h2>
-            <a href="{{ route('products.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Yeni ürün</a>
+            <button
+                type="button"
+                x-data=""
+                x-on:click="$dispatch('open-modal', 'create-product')"
+                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700"
+            >
+                Yeni ürün
+            </button>
         </div>
     </x-slot>
 
@@ -35,7 +42,7 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-right space-x-3">
-                                    <a href="{{ route('products.edit', $product) }}" class="text-indigo-600 hover:underline">Düzenle</a>
+                                    <a href="{{ route('products.index', ['edit' => $product->id]) }}" class="text-indigo-600 hover:underline">Düzenle</a>
                                     <form action="{{ route('products.destroy', $product) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
                                         @csrf
                                         @method('DELETE')
@@ -53,4 +60,32 @@
             </div>
         </div>
     </div>
+
+    <x-form-modal name="create-product" title="Yeni ürün" :show="$showCreateModal">
+        <form method="POST" action="{{ route('products.store') }}" class="space-y-4">
+            @csrf
+            <input type="hidden" name="_modal" value="create-product">
+            @include('products._form', ['idPrefix' => 'create_', 'product' => null])
+            <div class="flex gap-3 pt-2">
+                <x-primary-button>Kaydet</x-primary-button>
+                <button type="button" x-on:click="$dispatch('close')" class="inline-flex items-center px-4 py-2 text-sm text-gray-600 hover:underline">İptal</button>
+            </div>
+        </form>
+    </x-form-modal>
+
+    @if ($editing)
+        <x-form-modal name="edit-product" title="Ürün düzenle" :show="$showEditModal">
+            <form method="POST" action="{{ route('products.update', $editing) }}" class="space-y-4">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="_modal" value="edit-product">
+                <input type="hidden" name="_edit_id" value="{{ $editing->id }}">
+                @include('products._form', ['idPrefix' => 'edit_', 'product' => $editing])
+                <div class="flex gap-3 pt-2">
+                    <x-primary-button>Güncelle</x-primary-button>
+                    <button type="button" x-on:click="$dispatch('close')" class="inline-flex items-center px-4 py-2 text-sm text-gray-600 hover:underline">İptal</button>
+                </div>
+            </form>
+        </x-form-modal>
+    @endif
 </x-app-layout>
